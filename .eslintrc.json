@@ -1,0 +1,21 @@
+{
+  "extends": "airbnb",
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module",
+    "allowImportExportEverywhere": false
+  },
+  "rules": {
+    "wrap-iife":0,
+    "no-underscore-dangle": 0,
+    "linebreak-style": 0,
+    "class-methods-use-this": ["off"],
+    "no-use-before-define": ["error", { 
+      "functions": false, 
+      "classes": false 
+    }],
+    "arrow-parens": ["error", "as-needed", {
+      "requireForBlockBody": false
+    }]
+  }
+}
