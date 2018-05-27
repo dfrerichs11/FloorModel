@@ -27,13 +27,19 @@ export default class Task {
       path.forEach(option => {
         option.transitions.forEach(transition => {
           actions.push({
-            action: _state => _state.entityList.entities[option.ent].setState(transition.state),
+            action: _state => _state.setState(option.ent, transition.state),
+            serialCode: state.getStateserialCodemand(
+              option.ent,
+              transition.state,
+              transition.initState,
+            ),
             time: transition.time,
           });
           transition.produce.forEach(prod => {
             actions.push({
               action: _state => _state.entityList.entities[option.ent]
                 .adjustInventory(prod.material, prod.qty),
+              serialCode: state.getInventoryserialCodemand(option.ent, prod.material, prod.qty),
               time: transition.time,
             });
           });

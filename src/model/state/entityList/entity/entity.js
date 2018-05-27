@@ -4,7 +4,7 @@ export default class Entity {
     this.location = ent.location;
     this.name = ent.name;
     this.groupID = ent.groupID;
-    this.inventory = ent.inventory || {};
+    this.inventory = ent.inventory || [];
     this.id = id;
 
     this.adjustInventory = this.adjustInventory.bind(this);
@@ -12,6 +12,7 @@ export default class Entity {
     this.setState = this.setState.bind(this);
     this.isAvailable = this.isAvailable.bind(this);
     this.copy = this.copy.bind(this);
+    this.equals = this.equals.bind(this);
   }
   adjustInventory = (material, qty) => {
     if (this.inventory[material]) {
@@ -39,4 +40,8 @@ export default class Entity {
     },
     this.id,
   );
+  equals = entity =>
+    entity.state === this.state &&
+    entity.location === this.location &&
+    entity.inventory.every((mat, i) => mat === this.inventory[i])
 }

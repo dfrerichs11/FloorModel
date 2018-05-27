@@ -91,7 +91,6 @@ export default class FloorModel {
         groupID: 3,
       },
     ].map((ent, index) => new Entity(ent, index))));
-
     this.completionCheck = state => state.entityList.entities[1].inventory[3] > 2;
     this.runModel = this.runModel.bind(this);
     this.iterateModel = this.iterateModel.bind(this);

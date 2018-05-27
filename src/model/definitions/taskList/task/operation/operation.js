@@ -10,7 +10,12 @@ export default class Operation {
 
   options = state => {
     const avail = state.entityList.getEnts(this.groupIds, this.initState, this.BOM).map(ent =>
-      ({ ent: ent.id, transitions: this.transitions, reserved: this.initState !== -1 }));
+      ({
+        ent: ent.id,
+        transitions: this.transitions,
+        reserved: this.initState !== -1,
+        initState: this.initState,
+      }));
     return avail;
   }
 }

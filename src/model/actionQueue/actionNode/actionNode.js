@@ -5,13 +5,14 @@ export default class ActionQueueNode {
     this.runActions = this.runActions.bind(this);
     this.copy = this.copy.bind(this);
   }
-  addAction(action) {
-    this.actions.push(action);
+  addAction(action, serialCode) {
+    this.actions.push({ action, serialCode });
   }
-  runActions(state) {
-    while (this.actions.length) {
-      this.actions.shift()(state);
-    }
+  runActions(state, callback) {
+    this.actions.forEach(action => {
+      action.action(state);
+      callback(action.serialCode);
+    });
   }
   copy = () => new ActionQueueNode(this.actions.slice());
 }
