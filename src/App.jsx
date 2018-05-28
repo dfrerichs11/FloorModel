@@ -5,13 +5,15 @@ import FloorModel from './model';
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      myModel: new FloorModel(),
-    };
+    this.runModel = this.runModel.bind(this);
+  }
+  runModel = () => {
+    const model = new FloorModel();
+    model.runModel();
   }
   render() {
     return (
-      <button onClick={this.state.myModel.runModel}>
+      <button onClick={this.runModel}>
       runModel
       </button>
     );

@@ -26,20 +26,17 @@ export default class Task {
       const actions = [];
       path.forEach(option => {
         option.transitions.forEach(transition => {
-          actions.push({
-            action: _state => _state.setState(option.ent, transition.state),
-            serialCode: state.getStateserialCodemand(
-              option.ent,
-              transition.state,
-              transition.initState,
-            ),
-            time: transition.time,
-          });
+          if (typeof (transition.state) !== 'undefined') {
+            actions.push({
+              action: _state => _state.setState(option.ent, transition.state),
+              serialCode: `${option.ent}_${transition.state}`,
+              time: transition.time,
+            });
+          }
           transition.produce.forEach(prod => {
             actions.push({
-              action: _state => _state.entityList.entities[option.ent]
-                .adjustInventory(prod.material, prod.qty),
-              serialCode: state.getInventoryserialCodemand(option.ent, prod.material, prod.qty),
+              action: _state => _state.adjustInventory(option.ent, prod.material, prod.qty),
+              serialCode: `${option.ent}_${prod.material}_${prod.qty}`,
               time: transition.time,
             });
           });

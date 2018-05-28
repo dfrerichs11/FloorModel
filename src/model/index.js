@@ -1,5 +1,4 @@
 // Main class for the Floor Model
-import ActionQueue from './actionQueue/actionQueue';
 import State from './state/state';
 import TaskList from './definitions/taskList/taskList';
 import Entity from './state/entityList/entity/entity';
@@ -7,7 +6,6 @@ import EntityList from './state/entityList/entityList';
 
 export default class FloorModel {
   constructor() {
-    this.actionQueue = new ActionQueue();
     this.taskList = new TaskList([
       [
         {
@@ -34,7 +32,7 @@ export default class FloorModel {
       [
         {
           transitions: [
-            { time: 0, state: -1, produce: [{ material: 2, qty: -1 }] },
+            { time: 0, produce: [{ material: 2, qty: -1 }] },
           ],
           groupIds: [1],
           initState: -1,
@@ -42,7 +40,7 @@ export default class FloorModel {
         },
         {
           transitions: [
-            { time: 2, state: -1, produce: [{ material: 2, qty: 1 }] },
+            { time: 2, produce: [{ material: 2, qty: 1 }] },
           ],
           groupIds: [2],
           initState: -1,
@@ -76,25 +74,31 @@ export default class FloorModel {
         location: { x: 0, y: 0 },
         name: 'machine1',
         groupID: 1,
-        inventory: { 1: 10 },
+        inventory: [0, 10, 0, 0],
       },
       {
         state: 0,
         location: { x: 0, y: 0 },
         name: 'machine2',
         groupID: 2,
+        inventory: [0, 0, 0, 0],
       },
       {
         state: 1,
         location: { x: 0, y: 0 },
         name: 'bob',
         groupID: 3,
+        inventory: [0, 0, 0, 0],
       },
-    ].map((ent, index) => new Entity(ent, index))));
-    this.completionCheck = state => state.entityList.entities[1].inventory[3] > 2;
+    ].map((ent, index) => new Entity(ent, index))), { serialBlockLength: (2 + (3 * 4)) });
+    this.completionCheck = [
+      state => state.entityList.entities[1].inventory[3] > 5,
+      state => (state.entityList.entities[1].inventory[3] + 2) / state.actionQueue.time < 0.07,
+    ];
     this.runModel = this.runModel.bind(this);
     this.iterateModel = this.iterateModel.bind(this);
-    this.branches = [{ state: this.state, queue: this.actionQueue, active: true }];
+    this.branches = [{ state: this.state, active: true }];
+    this.serialCodeList = {};
   }
   runModel() {
     let theseBranches = this.branches;
@@ -102,7 +106,7 @@ export default class FloorModel {
 
     const expandBranch = branch => {
       if (branch.active) {
-        this.iterateModel(branch.state, branch.queue).forEach(newBranch => {
+        this.iterateModel(branch.state).forEach(newBranch => {
           nextBranches.push(newBranch);
         });
       } else {
@@ -140,17 +144,26 @@ export default class FloorModel {
   //   }
   // }
 
-  iterateModel(state, queue) {
+  iterateModel(state) {
     const newBranches = [];
-    if (this.completionCheck(state)) return { state, queue, active: false };
-    queue.processNode(state, false);
+    let newState;
+    if (this.completionCheck.some(check => check(state))) {
+      return [{ state, active: false }];
+    }
+    state.actionQueue.processNode(false);
     const tasks = this.taskList.getAvailableTasks(state);
     if (tasks.length === 0) {
-      queue.processNode(state, true);
-      newBranches.push({ state, queue, active: true });
+      state.actionQueue.processNode(true);
+      newBranches.push({ state, active: true });
     } else {
       tasks.forEach(task => {
-        newBranches.push({ state: state.copy(), queue: queue.copy(task), active: true });
+        newState = state.copy(task);
+        if (!this.serialCodeList[newState.getSerialCode()]) {
+          newBranches.push({ state: newState, active: true });
+          this.serialCodeList[newState.getSerialCode()] = true;
+        } else {
+          newBranches.push({ state: newState, active: false });
+        }
       });
     }
     return newBranches;

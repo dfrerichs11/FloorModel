@@ -36,7 +36,7 @@ export default class Entity {
       location: { ...this.location },
       name: this.name,
       groupID: this.groupID,
-      inventory: { ...this.inventory },
+      inventory: this.inventory.slice(),
     },
     this.id,
   );

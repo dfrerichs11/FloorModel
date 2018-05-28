@@ -3,7 +3,6 @@ import Entity from './entity/entity';
 export default class EntityList {
   constructor(entities) {
     this.entities = entities;
-
     this.addEntity = this.addEntity.bind(this);
     this.getEnts = this.getEnts.bind(this);
     this.copy = this.copy.bind(this);
